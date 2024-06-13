@@ -5,6 +5,6 @@ import com.softgr5.microservicio.viajes.DTO.PublicarViaje2;
 
 public interface ViajesService {
 
-    Long publicarViajev1(String jwtToken, PublicarViaje1 publicarViaje1);
-    String publicarViaje2(String jwtToken, Long viajeId, PublicarViaje2 publicarViaje2);
+    String publicarViajev1(String jwtToken, PublicarViaje1 publicarViaje1);
+    String publicarViaje2(String jwtToken, String viajeId, PublicarViaje2 publicarViaje2);
 }

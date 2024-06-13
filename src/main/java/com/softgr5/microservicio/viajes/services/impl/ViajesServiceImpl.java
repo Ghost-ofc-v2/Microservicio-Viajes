@@ -1,7 +1,6 @@
 package com.softgr5.microservicio.viajes.services.impl;
 
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.softgr5.microservicio.viajes.DTO.Conductor;
 import com.softgr5.microservicio.viajes.DTO.PublicarViaje1;
 import com.softgr5.microservicio.viajes.DTO.PublicarViaje2;
@@ -9,7 +8,9 @@ import com.softgr5.microservicio.viajes.DTO.Usuario;
 import com.softgr5.microservicio.viajes.entity.ViajeDestino;
 import com.softgr5.microservicio.viajes.entity.ViajeOrigen;
 import com.softgr5.microservicio.viajes.entity.Viajes;
-import com.softgr5.microservicio.viajes.repos.ViajesRepository;
+import com.softgr5.microservicio.viajes.reposDynamo.ViajeDestinoRepository;
+import com.softgr5.microservicio.viajes.reposDynamo.ViajeOrigenRepository;
+import com.softgr5.microservicio.viajes.reposDynamo.ViajesRepository;
 import com.softgr5.microservicio.viajes.services.ViajesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -36,8 +37,14 @@ public class ViajesServiceImpl implements ViajesService {
     @Autowired
     private ViajesRepository viajesRepository;
 
+    @Autowired
+    private ViajeOrigenRepository viajeOrigenRepository;
+
+    @Autowired
+    private ViajeDestinoRepository viajeDestinoRepository;
+
     @Override
-    public Long publicarViajev1(String jwtToken, PublicarViaje1 publicarViaje1) {
+    public String publicarViajev1(String jwtToken, PublicarViaje1 publicarViaje1) {
         try {
             // Obtener correo del usuario autenticado
             String correo = restTemplate.getForObject(authServiceUrl + "/api/usuario/email/" + jwtToken, String.class);
@@ -59,11 +66,10 @@ public class ViajesServiceImpl implements ViajesService {
                 throw new IllegalStateException("No hay un conductor asociado a este usuario.");
             }
 
-            System.out.println(conductor.getIdConductor());
-
             Viajes viajes = new Viajes();
             viajes.setAsientosReservados(0);
             viajes.setDisponible(Boolean.TRUE);
+            viajes.setConductorId(conductor.getIdConductor());
 
             ViajeOrigen viajeOrigen = new ViajeOrigen();
             viajeOrigen.setDireccionorigen(publicarViaje1.getDireccionorigen());
@@ -75,13 +81,16 @@ public class ViajesServiceImpl implements ViajesService {
             viajeDestino.setCiudaddestino(publicarViaje1.getCiudaddestino());
             viajeDestino.setDepartamentodestino(publicarViaje1.getDepartamentodestino());
 
-            viajes.setViajeOrigen(viajeOrigen);
-            viajes.setViajeDestino(viajeDestino);
-            viajes.setConductorId(conductor.getIdConductor());
+            // Guardar ViajeOrigen y ViajeDestino
+            ViajeOrigen savedViajeOrigen = viajeOrigenRepository.save(viajeOrigen);
+            ViajeDestino savedViajeDestino = viajeDestinoRepository.save(viajeDestino);
 
-            viajesRepository.save(viajes);
+            viajes.setViajeOrigen(savedViajeOrigen.getIdviajeorigen());
+            viajes.setViajeDestino(savedViajeDestino.getIdviajedestino());
 
-            return viajes.getId_viajes();
+            Viajes savedViajes = viajesRepository.save(viajes);
+
+            return "{\"success\": true, \"message\": \""+savedViajes.getId_viajes()+"\"}";
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Error al publicar el viaje: " + e.getMessage());
         } catch (Exception e) {
@@ -90,12 +99,10 @@ public class ViajesServiceImpl implements ViajesService {
     }
 
     @Override
-    public String publicarViaje2(String jwtToken, Long viajeId, PublicarViaje2 publicarViaje2){
-
+    public String publicarViaje2(String jwtToken, String viajeId, PublicarViaje2 publicarViaje2) {
         try {
             // Obtener correo del usuario autenticado
             String correo = restTemplate.getForObject(authServiceUrl + "/api/usuario/email/" + jwtToken, String.class);
-
 
             if (correo == null) {
                 throw new UsernameNotFoundException("Usuario no encontrado con el token proporcionado.");
@@ -113,7 +120,7 @@ public class ViajesServiceImpl implements ViajesService {
                     .orElseThrow(() -> new IllegalArgumentException("El viaje no existe"));
 
             // Obtener información del conductor asociado al viaje
-            Long conductorId = viajes.getConductorId();
+            String conductorId = viajes.getConductorId();
 
             Conductor conductor = restTemplate.getForObject(conductorServiceUrl + "/api/usuario/conductor/" + conductorId, Conductor.class);
             if (conductor == null) {
@@ -125,7 +132,6 @@ public class ViajesServiceImpl implements ViajesService {
             conductor.setModeloAuto(publicarViaje2.getModeloAuto());
             conductor.setPlacaAuto(publicarViaje2.getPlacaAuto());
             conductor.setColorAuto(publicarViaje2.getColorAuto());
-
 
             // Guardar la información del conductor actualizada
             restTemplate.put(conductorServiceUrl + "/api/usuario/conductor/guardar/" + conductorId, conductor);
