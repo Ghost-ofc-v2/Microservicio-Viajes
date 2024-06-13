@@ -32,8 +32,7 @@ public class ViajesController {
 
             String jwtToken2 = EncryptionUtil.decrypt(jwtToken);
             String idviaje = viajeService.publicarViajev1(jwtToken2, publicarViaje1);
-            String mensajeres = "ID del viaje: " + idviaje + "\n";
-            return ResponseEntity.ok(mensajeres);
+            return ResponseEntity.ok(idviaje);
         }catch (IllegalArgumentException e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }catch (NullPointerException e){
