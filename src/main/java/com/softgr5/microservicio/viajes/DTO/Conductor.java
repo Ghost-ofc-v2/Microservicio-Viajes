@@ -3,13 +3,13 @@ package com.softgr5.microservicio.viajes.DTO;
 
 public class Conductor {
 
-    private Long idConductor;
+    private String idConductor;
     private String marcaAuto;
     private String modeloAuto;
     private String placaAuto;
     private String colorAuto;
 
-    public Conductor(Long idConductor, String modeloAuto, String marcaAuto, String placaAuto, String colorAuto) {
+    public Conductor(String idConductor, String modeloAuto, String marcaAuto, String placaAuto, String colorAuto) {
         this.idConductor = idConductor;
 
         this.modeloAuto = modeloAuto;
@@ -26,11 +26,11 @@ public class Conductor {
         this.marcaAuto = marcaAuto;
     }
 
-    public Long getIdConductor() {
+    public String getIdConductor() {
         return idConductor;
     }
 
-    public void setIdConductor(Long idConductor) {
+    public void setIdConductor(String idConductor) {
         this.idConductor = idConductor;
     }
 

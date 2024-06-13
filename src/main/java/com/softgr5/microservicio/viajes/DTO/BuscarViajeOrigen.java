@@ -8,10 +8,10 @@ import java.time.LocalDate;
 public class BuscarViajeOrigen {
     private String ciudadorigen;
     private String ciudaddestino;
-    private LocalDate fechaorigen;
+    private String fechaorigen;
 
 
-    public BuscarViajeOrigen(String ciudadorigen, String ciudaddestino, LocalDate fechaorigen) {
+    public BuscarViajeOrigen(String ciudadorigen, String ciudaddestino, String fechaorigen) {
         this.ciudadorigen = ciudadorigen;
         this.ciudaddestino = ciudaddestino;
         this.fechaorigen = fechaorigen;
@@ -33,11 +33,11 @@ public class BuscarViajeOrigen {
         this.ciudaddestino = ciudaddestino;
     }
 
-    public LocalDate getFechaorigen() {
+    public String getFechaorigen() {
         return fechaorigen;
     }
 
-    public void setFechaorigen(LocalDate fechaorigen) {
+    public void setFechaorigen(String fechaorigen) {
         this.fechaorigen = fechaorigen;
     }
 }

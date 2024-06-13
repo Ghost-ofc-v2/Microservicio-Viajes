@@ -7,7 +7,6 @@ import com.softgr5.microservicio.viajes.configuracion.EncryptionUtil;
 import com.softgr5.microservicio.viajes.entity.Viajes;
 import com.softgr5.microservicio.viajes.services.ViajeOrigenService;
 import com.softgr5.microservicio.viajes.services.ViajesService;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,28 +17,21 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/viajes")
-@CrossOrigin("*")
 public class ViajesController {
 
     @Autowired
-    private ViajesService viajeService;
+    ViajesService viajeService;
 
     @Autowired
     private ViajeOrigenService viajeOrigenService;
 
-    @GetMapping("/gg")
-    public String gg(){
-        return "Hello World";
-    }
-
     @PostMapping("/publicar-viaje1")
-    @Transactional
     public ResponseEntity<?> publicarViaje(@RequestHeader("Authorization") String authorizationHeader, @RequestBody @Valid PublicarViaje1 publicarViaje1) {
         try{
             String jwtToken = authorizationHeader.substring(7);
 
             String jwtToken2 = EncryptionUtil.decrypt(jwtToken);
-            Long idviaje = viajeService.publicarViajev1(jwtToken2, publicarViaje1);
+            String idviaje = viajeService.publicarViajev1(jwtToken2, publicarViaje1);
             String mensajeres = "ID del viaje: " + idviaje + "\n";
             return ResponseEntity.ok(mensajeres);
         }catch (IllegalArgumentException e){
@@ -52,8 +44,7 @@ public class ViajesController {
     }
 
     @PostMapping("/publicar-viaje2/{viajeId}")
-    @Transactional
-    public ResponseEntity<?> publicarViaje2(@RequestHeader("Authorization") String authorizationHeader, @PathVariable Long viajeId,@RequestBody @Valid  PublicarViaje2 publicarViaje2) {
+    public ResponseEntity<?> publicarViaje2(@RequestHeader("Authorization") String authorizationHeader, @PathVariable String viajeId,@RequestBody @Valid  PublicarViaje2 publicarViaje2) {
         try {
             String jwtToken = authorizationHeader.substring(7);
 
